@@ -1,0 +1,4 @@
+### bcs ###
+### name, keypoint, direction (0=x, 1=y, 2=x and y) ###
+bc1, kp1, 2
+bc2, kp2, 2
