@@ -7,7 +7,11 @@ mod input {
 }
 
 mod fe_engine {
-    pub mod stiffness_matrix;
+    pub mod global_stiffness_matrix;
+}
+
+mod materials {
+    pub mod local_stiffness_matrix_bar;
 }
 
 use input::keypoint::{parse_keypoint, Keypoint};
@@ -30,6 +34,6 @@ fn main() {
     println!("Parsed Pointloads:\n{:#?}", pl_list);
     println!("Parsed Materials:\n{:#?}", mat_list);
 
-    let global_identitity_matrix = create_global_unit_matrix(&kp_list, &conn_list);
+    let global_identitity_matrix = create_global_unit_matrix(&kp_list, &conn_list, 5000.0, 0.1);
     println!("Global identity matrix:\n{}", global_identitity_matrix)
 }

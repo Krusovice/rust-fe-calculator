@@ -1,5 +1,5 @@
 ### keypoints ###
 ### name, x, y ###
 kp1, 0, 0
-kp2, 1, 0
+kp2, 2, 0
 kp3, 1, 1

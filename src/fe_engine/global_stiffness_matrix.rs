@@ -3,9 +3,10 @@
 use nalgebra::DMatrix;
 use crate::input::keypoint::Keypoint;
 use crate::input::connection::Connection;
+use crate::materials::local_stiffness_matrix_bar::local_bar_matrix;
 use std::collections::HashMap;
 
-pub fn create_global_unit_matrix(kp_list: &[Keypoint], conn_list: &[Connection]) -> DMatrix<f64> {
+pub fn create_global_unit_matrix(kp_list: &[Keypoint], conn_list: &[Connection], E:f64, A:f64) -> DMatrix<f64> {
 	// Creating size based on bar elements
 	let size: usize = 2*kp_list.len();
 
@@ -23,20 +24,36 @@ pub fn create_global_unit_matrix(kp_list: &[Keypoint], conn_list: &[Connection])
 	}
 
 	for conn in conn_list {
-		let kp_1 = &conn.kp_1;
-		let kp_2 = &conn.kp_2;
+		// Finding the keypoints structs needed for calculating the local stiffness matrix.
+		let kp_1 = kp_list.iter().find(|kp| kp.name == conn.kp_1).unwrap();
+		let kp_2 = kp_list.iter().find(|kp| kp.name == conn.kp_2).unwrap();
+		let local_bar_mat:DMatrix<f64> = local_bar_matrix(kp_1, kp_2, E, A);
 
-		let loc_1 = kp_map[kp_1];
-		let loc_2 = kp_map[kp_2];
+		// Finding keypoint locations in the global stiffness matrix.
+		let loc_1 = kp_map[&conn.kp_1];
+		let loc_2 = kp_map[&conn.kp_2];
 
-		global_identity_matrix[(loc_1,loc_1)] += 1.0;
-		global_identity_matrix[(loc_1+1,loc_1+1)] += 1.0;
-		global_identity_matrix[(loc_2,loc_2)] += 1.0;
-		global_identity_matrix[(loc_2+1,loc_2+1)] += 1.0;
-		global_identity_matrix[(loc_1,loc_2)] += -1.0;
-		global_identity_matrix[(loc_1+1,loc_2+1)] += -1.0;
-		global_identity_matrix[(loc_2,loc_1)] += -1.0;
-		global_identity_matrix[(loc_2+1,loc_1+1)] += -1.0;
+		// Inserting keypoint local values into the global stiffness matrix.
+		global_identity_matrix[(loc_1,loc_1)] += local_bar_mat[(0,0)];
+		global_identity_matrix[(loc_1,loc_1+1)] += local_bar_mat[(0,1)];
+		global_identity_matrix[(loc_1+1,loc_1)] += local_bar_mat[(1,0)];
+		global_identity_matrix[(loc_1+1,loc_1+1)] += local_bar_mat[(1,1)];
+
+		global_identity_matrix[(loc_2,loc_2)] += local_bar_mat[(2,2)];
+		global_identity_matrix[(loc_2,loc_2+1)] += local_bar_mat[(2,3)];
+		global_identity_matrix[(loc_2+1,loc_2)] += local_bar_mat[(3,2)];
+		global_identity_matrix[(loc_2+1,loc_2+1)] += local_bar_mat[(3,3)];
+
+		global_identity_matrix[(loc_1,loc_2)] += local_bar_mat[(0,2)];
+		global_identity_matrix[(loc_1,loc_2+1)] += local_bar_mat[(0,3)];
+		global_identity_matrix[(loc_1+1,loc_2)] += local_bar_mat[(1,2)];
+		global_identity_matrix[(loc_1+1,loc_2+1)] += local_bar_mat[(1,3)];
+
+		global_identity_matrix[(loc_2,loc_1)] += local_bar_mat[(2,0)];
+		global_identity_matrix[(loc_2,loc_1+1)] += local_bar_mat[(3,0)];
+		global_identity_matrix[(loc_2+1,loc_1)] += local_bar_mat[(2,1)];
+		global_identity_matrix[(loc_2+1,loc_1+1)] += local_bar_mat[(3,1)];
+
 	}
 
 	global_identity_matrix
