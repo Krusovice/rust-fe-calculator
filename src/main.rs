@@ -15,7 +15,7 @@ use input::connection::{parse_connection, Connection};
 use input::boundary_condition::{parse_boundary_condition, Boundary_condition};
 use input::pointload::{parse_pointload, Pointload};
 use input::material::{parse_material, Material};
-use fe_engine::stiffness_matrix::{create_global_unit_matrix};
+use fe_engine::global_stiffness_matrix::{create_global_unit_matrix};
 
 fn main() {
     let kp_list = parse_keypoint("inputs/keypoints.txt");
@@ -30,6 +30,6 @@ fn main() {
     println!("Parsed Pointloads:\n{:#?}", pl_list);
     println!("Parsed Materials:\n{:#?}", mat_list);
 
-    let global_identitity_matrix = create_global_unit_matrix(&kp_list);
+    let global_identitity_matrix = create_global_unit_matrix(&kp_list, &conn_list);
     println!("Global identity matrix:\n{}", global_identitity_matrix)
 }
