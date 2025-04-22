@@ -1,12 +1,12 @@
 // This file contains generation of the stiffness matrix.
 
-use nalgebra::DMatrix;
+use nalgebra::{DMatrix, DVector};
 use crate::input::keypoint::Keypoint;
 use crate::input::connection::Connection;
-use crate::materials::local_stiffness_matrix_bar::local_bar_matrix;
+use crate::material_formulation::local_stiffness_matrix_bar::local_bar_matrix;
 use std::collections::HashMap;
 
-pub fn create_global_unit_matrix(kp_list: &[Keypoint], conn_list: &[Connection], E:f64, A:f64) -> DMatrix<f64> {
+pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connection], E:f64, A:f64) -> DMatrix<f64> {
 	// Creating size based on bar elements
 	let size: usize = 2*kp_list.len();
 
@@ -60,4 +60,19 @@ pub fn create_global_unit_matrix(kp_list: &[Keypoint], conn_list: &[Connection],
 }
 
 
+// Applying the boundary conditions to the global stiffnessmatrix.
+// Returning the modified global stiffness matrix.
+// Inserting mut global stiffness matrix, applying new owner.
+pub fn apply_boundary_conditions(global_stiffness_matrix:&mut DMatrix<f64>,dof_filter_vector:&DVector<f64>) {
+	let size = dof_filter_vector.nrows();
 
+	for i in 0..size {
+		if dof_filter_vector[i] == 0.0 {
+			for j in 0..size {
+				global_stiffness_matrix[(i,j)] = 0.0;
+				global_stiffness_matrix[(j,i)] = 0.0;
+			}
+			global_stiffness_matrix[(i,i)] = 1.0;
+		}
+	}
+}
