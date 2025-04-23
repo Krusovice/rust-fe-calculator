@@ -1,4 +1,4 @@
 ### connections ###
 ### name, connection start, connection end, material ###
-c1, kp1, kp2, mat1
+c1, kp1, kp3, mat1
 c2, kp2, kp3, mat1

@@ -66,7 +66,7 @@ pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connect
 pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filter_vector:&DVector<f64>) -> DMatrix<f64> {
 	let mut modified_global_stiffness_matrix:DMatrix<f64> = global_stiffness_matrix.clone();
 
-	let size = dof_filter_vector.nrows();
+	let size:usize = dof_filter_vector.nrows();
 
 	for i in 0..size {
 		if dof_filter_vector[i] == 0.0 {
@@ -82,16 +82,84 @@ pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filt
 }
 
 // This functions calculates the displacement vector by inverting the modified global stiffness matrix.
-// Before inverting, all dof's (rows and columns) with fixed boundary conditions (diagonal elements = 1)
+// Before inverting, all dof's (rows and columns) with fixed boundary conditions (diagonal elements = 1).
 // are removed. That for both vector and global stiffness matrix.
 // After inverting, the global stiffness matrix is assembled again, by re-adding the removed dof's.
-pub fn calculate_displacement_vector(modified_global_stiffness_matrix:&DMatrix<f64>, force_vector:&DVector<f64>) -> DVector<f64> {
-	// Applying nalgebra's lu solver to solve a linear matrix system of matrix*vector = vector.
-	let lu = modified_global_stiffness_matrix.clone().lu();
-	let displacement_vector = lu.solve(force_vector).unwrap();
+pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:&DMatrix<f64>, force_vector:&DVector<f64>) -> DVector<f64> {
+
+	// Creating a hashmap for correlating matrix locations for global and reduced stiffness matrices.
+	// The key is the total stiffness matrix location. The value is the reduced stiffness matrix location.
+	// A value of -999 is set for a non-existent location in the reduced stiffness matrix.
+	let mut global_stiffness_matrix_map:HashMap<usize, i32> = HashMap::new();
+
+	let size:usize = force_vector.nrows();
+	let mut loc_reduced:i32 = 0;
+	for loc_global in 0..size {
+		if force_vector[loc_global] == 0.0 {
+			global_stiffness_matrix_map.insert(loc_global,-999);
+		}
+		else {
+			global_stiffness_matrix_map.insert(loc_global,loc_reduced);
+			loc_reduced += 1;
+		}
+	}
+
+	// Creating the reduced stiffness matrix and force vector.
+	// The reduced stiffness matrix and force vector contains only locations with known forces and unknown dispacements.
+	// That means that each column and row that contains a zero, is removed.
+	// That is the reduced stiffness matrix. The same rows are removed for the force vector.
+	let size_reduced = global_stiffness_matrix_map.values().filter(|&&v| v != -999).count();
+
+	let mut modified_global_stiffness_matrix_reduced:DMatrix<f64> = DMatrix::<f64>::zeros(size_reduced,size_reduced);
+	let mut force_vector_reduced:DVector<f64> = DVector::<f64>::zeros(size_reduced);
+
+	for i in 0..size {
+		if global_stiffness_matrix_map[&i] == -999 {
+			continue;
+		}
+		let mut reduced_loc_row = global_stiffness_matrix_map[&i];
+		for j in 0..size {
+			if global_stiffness_matrix_map[&j] == -999 {
+				continue;
+			}
+			let mut reduced_loc_col = global_stiffness_matrix_map[&j];
+			modified_global_stiffness_matrix_reduced[(reduced_loc_row as usize,reduced_loc_col as usize)]
+			= modified_global_stiffness_matrix[(i as usize,j as usize)];
+		}
+		force_vector_reduced[reduced_loc_row as usize] = force_vector[i];
+	}
+
+	// The displacements (u) at location with no bc's are found
+	// by solving the reduced stiffness matrix and reduced force vector. u*K=F.
+	// Applying nalgebra's lu solver to solve.
+
+	let lu = modified_global_stiffness_matrix_reduced.clone().lu();
+	let displacement_vector_reduced = lu.solve(&force_vector_reduced).unwrap();
+
+	// The global stiffness matrix to reduced stiffness matrix hashmap is now used to insert the displacement values at correct locations.
+	let mut displacement_vector:DVector<f64> = DVector::<f64>::zeros(size);
+
+	let mut loc_reduced:i32 = 0;
+	for i in 0..size {
+		if global_stiffness_matrix_map[&i] == -999 {
+			displacement_vector[i as usize] = 0.0;
+		}
+		else {
+			let u_value:f64 = displacement_vector_reduced[loc_reduced as usize];
+			displacement_vector[i as usize] = u_value;
+			loc_reduced += 1;
+		}
+	}
 
 	displacement_vector
 }
 
+pub fn calculate_resulting_force_vector(
+	global_stiffness_matrix:&DMatrix<f64>, 
+	resulting_displacement_vector:&DVector<f64>) -> DVector<f64> {
 
+	let resulting_force_vector:DVector<f64> = global_stiffness_matrix * resulting_displacement_vector;
+
+	resulting_force_vector
+}
 
