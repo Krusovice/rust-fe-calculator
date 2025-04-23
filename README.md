@@ -7,30 +7,28 @@ This application parses model inputs from `.txt` files, making it easy to modify
 
 
 ## How to Run
-- Modify the input txt files in the `inputs/` directory (keypoints, connections, pointloads, boundary-conditions).
-- Set material parameters (e.g., `E`, `A`) directly in `main.rs`.
+- Set files in the `inputs/` directory: `keypoints.txt`, `connections`, `pointloads` `boundary-conditions` (contains a preset simple structure as example).
+- Set material parameters (`E`, `A`) directly in `main.rs`.
 - Build and run the application using:
    ```bash
+   cargo build
    cargo run
    ```
-
-- A first clone contains prescribed test inputs for development. The application can be run in its current state.
 
 ## Method
 The application follows these steps:
 
 - Parses inputs and loads them into Rust structs.
 - Builds the global stiffness matrix **[K]** using keypoints and connection inputs.
-- Applies boundary conditions based on boundary definitions.
 - Constructs the global force vector **[F]** based on pointload inputs.
-- Solves for displacements using:
-
+- Applies boundary conditions based on boundary definitions.
+- Creates a global-reduced HashMap to correlate global stiffness matrix and force vector locations with a reduced format **[Kᵣ]** and **[Fᵣ]**, disregarding degrees of freedom where boundary conditions are applied.
+- Solves displacements using reduced stiffness matrix and force vector.
   ```
-  [u] = [K]⁻¹ · [F]
+  [uᵣ] = [Kᵣ]⁻¹ · [Fᵣ]
   ```
-
-- Calculates internal nodal forces using:
-
+- Applies global-reduced HashMap to create global displacement vector **[u]**.
+- Solves for global forces using the global stiffness matrix and global displacement vector.
   ```
   [F] = [K] · [u]
   ```
@@ -39,13 +37,10 @@ The application follows these steps:
 - Bar elements (axial stiffness only).
 
 ## Tech Stack
-- **Rust**.
-- **nalgebra** – linear algebra for matrix/vector operations.
-- Plain text input format – simple and flexible `.txt` files.
-- Custom-built FE core logic from scratch.
+- nalgebra – linear algebra for matrix/vector operations.
+- Custom-built FE core logic.
 
 ## Future Implementation Ideas
 - Add support for beam elements (bending).
 - Create a visualization module for geometry and force + displacement overview.
 - Add spring stiffness boundary conditions.
-- Add test cases.
