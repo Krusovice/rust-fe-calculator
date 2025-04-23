@@ -25,6 +25,12 @@ use fe_engine::global_stiffness_matrix::{create_global_stiffness_matrix,apply_bo
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
 
+// Hardcoding material parameters, 
+// A=Area
+// E=Stiffness
+const MATERIAL_A: f64 = 5000.0;
+const MATERIAL_E: f64 = 0.1;
+
 fn main() {
     let kp_list = parse_keypoint("inputs/keypoints.txt");
     let conn_list = parse_connection("inputs/connections.txt");
@@ -38,7 +44,7 @@ fn main() {
     println!("Parsed Pointloads:\n{:#?}", pl_list);
     println!("Parsed Materials:\n{:#?}", mat_list);
 
-    let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, 5000.0, 0.1);
+    let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, MATERIAL_E, MATERIAL_A);
     println!("Global stiffness matrix:\n{}", global_stiffness_matrix);
 
     let dof_filter_vector = create_dof_filter_vector(&kp_list, &bc_list);
@@ -50,6 +56,6 @@ fn main() {
     let modified_global_stiffness_matrix = apply_boundary_conditions(&global_stiffness_matrix, &dof_filter_vector);
     println!("Modified global stiffness matrix:\n{}", modified_global_stiffness_matrix);
 
-    let displacement_vector = calculate_displacement_vector(&modified_global_stiffness_matrix, &force_vector);
-    println!("Displacement Vector:\n{}", displacement_vector);
+    //let displacement_vector = calculate_displacement_vector(&modified_global_stiffness_matrix, &force_vector);
+    //println!("Displacement Vector:\n{}", displacement_vector);
 }
