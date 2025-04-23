@@ -21,7 +21,7 @@ use input::connection::{parse_connection, Connection};
 use input::boundary_condition::{parse_boundary_condition, Boundary_condition};
 use input::pointload::{parse_pointload, Pointload};
 use input::material::{parse_material, Material};
-use fe_engine::global_stiffness_matrix::{create_global_stiffness_matrix, apply_boundary_conditions};
+use fe_engine::global_stiffness_matrix::{create_global_stiffness_matrix,apply_boundary_conditions, calculate_displacement_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
 
@@ -38,7 +38,7 @@ fn main() {
     println!("Parsed Pointloads:\n{:#?}", pl_list);
     println!("Parsed Materials:\n{:#?}", mat_list);
 
-    let mut global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, 5000.0, 0.1);
+    let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, 5000.0, 0.1);
     println!("Global stiffness matrix:\n{}", global_stiffness_matrix);
 
     let dof_filter_vector = create_dof_filter_vector(&kp_list, &bc_list);
@@ -47,6 +47,9 @@ fn main() {
     let force_vector = create_force_vector(&kp_list, &pl_list);
     println!("Force vector:\n{}", force_vector);
 
-    apply_boundary_conditions(&mut global_stiffness_matrix, &dof_filter_vector);
-    println!("Modified global stiffness matrix:\n{}", global_stiffness_matrix);
+    let modified_global_stiffness_matrix = apply_boundary_conditions(&global_stiffness_matrix, &dof_filter_vector);
+    println!("Modified global stiffness matrix:\n{}", modified_global_stiffness_matrix);
+
+    let displacement_vector = calculate_displacement_vector(&modified_global_stiffness_matrix, &force_vector);
+    println!("Displacement Vector:\n{}", displacement_vector);
 }

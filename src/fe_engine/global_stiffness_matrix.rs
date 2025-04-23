@@ -63,16 +63,35 @@ pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connect
 // Applying the boundary conditions to the global stiffnessmatrix.
 // Returning the modified global stiffness matrix.
 // Inserting mut global stiffness matrix, applying new owner.
-pub fn apply_boundary_conditions(global_stiffness_matrix:&mut DMatrix<f64>,dof_filter_vector:&DVector<f64>) {
+pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filter_vector:&DVector<f64>) -> DMatrix<f64> {
+	let mut modified_global_stiffness_matrix:DMatrix<f64> = global_stiffness_matrix.clone();
+
 	let size = dof_filter_vector.nrows();
 
 	for i in 0..size {
 		if dof_filter_vector[i] == 0.0 {
 			for j in 0..size {
-				global_stiffness_matrix[(i,j)] = 0.0;
-				global_stiffness_matrix[(j,i)] = 0.0;
+				modified_global_stiffness_matrix[(i,j)] = 0.0;
+				modified_global_stiffness_matrix[(j,i)] = 0.0;
 			}
-			global_stiffness_matrix[(i,i)] = 1.0;
+			modified_global_stiffness_matrix[(i,i)] = 1.0;
 		}
 	}
+
+	modified_global_stiffness_matrix
 }
+
+// This functions calculates the displacement vector by inverting the modified global stiffness matrix.
+// Before inverting, all dof's (rows and columns) with fixed boundary conditions (diagonal elements = 1)
+// are removed. That for both vector and global stiffness matrix.
+// After inverting, the global stiffness matrix is assembled again, by re-adding the removed dof's.
+pub fn calculate_displacement_vector(modified_global_stiffness_matrix:&DMatrix<f64>, force_vector:&DVector<f64>) -> DVector<f64> {
+	// Applying nalgebra's lu solver to solve a linear matrix system of matrix*vector = vector.
+	let lu = modified_global_stiffness_matrix.clone().lu();
+	let displacement_vector = lu.solve(force_vector).unwrap();
+
+	displacement_vector
+}
+
+
+
