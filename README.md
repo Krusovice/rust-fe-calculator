@@ -1,7 +1,10 @@
-# rust-fe-calculator (under development)
+# rust-fe-calculator
 A simple 2D Finite Element (FE) application written in Rust.
 
 This application parses model inputs from `.txt` files, making it easy to modify and iterate on simulations.
+
+> ⚠️ This project is currently in active development. Expect changes and improvements.
+
 
 ## How to Run
 - Modify the input txt files in the `inputs/` directory (keypoints, connections, pointloads, boundary-conditions).
