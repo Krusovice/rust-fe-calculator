@@ -16,6 +16,10 @@ mod material_formulation {
     pub mod local_stiffness_matrix_bar;
 }
 
+mod output {
+    pub mod plots;
+}
+
 use input::keypoint::{parse_keypoint, Keypoint};
 use input::connection::{parse_connection, Connection};
 use input::boundary_condition::{parse_boundary_condition, Boundary_condition};
@@ -28,6 +32,7 @@ use fe_engine::global_stiffness_matrix::{
     calculate_resulting_force_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
+use output::plots::{reaction_plot};
 
 // Hardcoding material parameters, 
 // A=Area
@@ -65,4 +70,6 @@ fn main() {
 
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
     println!("Resulting Force Vector:\n{}", resulting_force_vector);
+
+    reaction_plot(kp_list);
 }
