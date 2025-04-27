@@ -6,7 +6,7 @@ use crate::input::connection::Connection;
 use crate::material_formulation::local_stiffness_matrix_bar::local_bar_matrix;
 use std::collections::HashMap;
 
-pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connection], E:f64, A:f64) -> DMatrix<f64> {
+pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connection], e_module:f64, area:f64) -> DMatrix<f64> {
 	// Creating size based on bar elements
 	let size: usize = 2*kp_list.len();
 
@@ -27,7 +27,7 @@ pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connect
 		// Finding the keypoints structs needed for calculating the local stiffness matrix.
 		let kp_1 = kp_list.iter().find(|kp| kp.name == conn.kp_1).unwrap();
 		let kp_2 = kp_list.iter().find(|kp| kp.name == conn.kp_2).unwrap();
-		let local_bar_mat:DMatrix<f64> = local_bar_matrix(kp_1, kp_2, E, A);
+		let local_bar_mat:DMatrix<f64> = local_bar_matrix(kp_1, kp_2, e_module, area);
 
 		// Finding keypoint locations in the global stiffness matrix.
 		let loc_1 = kp_map[&conn.kp_1];
@@ -117,12 +117,12 @@ pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:
 		if global_stiffness_matrix_map[&i] == -999 {
 			continue;
 		}
-		let mut reduced_loc_row = global_stiffness_matrix_map[&i];
+		let reduced_loc_row = global_stiffness_matrix_map[&i];
 		for j in 0..size {
 			if global_stiffness_matrix_map[&j] == -999 {
 				continue;
 			}
-			let mut reduced_loc_col = global_stiffness_matrix_map[&j];
+			let reduced_loc_col = global_stiffness_matrix_map[&j];
 			modified_global_stiffness_matrix_reduced[(reduced_loc_row as usize,reduced_loc_col as usize)]
 			= modified_global_stiffness_matrix[(i as usize,j as usize)];
 		}

@@ -1,4 +1,4 @@
-use crate::input::material::Material;
+//use crate::input::material::Material;
 use nalgebra::{DMatrix, Vector2};
 use crate::input::keypoint::Keypoint;
 
@@ -13,7 +13,7 @@ use crate::input::keypoint::Keypoint;
 ///
 /// # Returns
 /// * `DMatrix<f64>` - A 4x4 local stiffness matrix in global coordinates
-pub fn local_bar_matrix(kp_1:&Keypoint, kp_2:&Keypoint, E:f64, A:f64) -> DMatrix<f64> {
+pub fn local_bar_matrix(kp_1:&Keypoint, kp_2:&Keypoint, e_module:f64, area:f64) -> DMatrix<f64> {
     // Creating vectors of kp_1 and kp_2
     let vec_kp_1 = Vector2::new(kp_1.x, kp_1.y);
     let vec_kp_2 = Vector2::new(kp_2.x, kp_2.y);
@@ -53,5 +53,5 @@ pub fn local_bar_matrix(kp_1:&Keypoint, kp_2:&Keypoint, E:f64, A:f64) -> DMatrix
     k[(3, 2)] =  c * s;
     k[(3, 3)] =  s * s;
 
-    k * E * A / length
+    k * e_module * area / length
 }

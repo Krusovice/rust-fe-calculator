@@ -3,7 +3,7 @@ mod input {
     pub mod connection;
     pub mod boundary_condition;
     pub mod pointload;
-    pub mod material;
+    //pub mod material;
 }
 
 mod fe_engine {
@@ -20,11 +20,11 @@ mod output {
     pub mod plots;
 }
 
-use input::keypoint::{parse_keypoint, Keypoint};
-use input::connection::{parse_connection, Connection};
-use input::boundary_condition::{parse_boundary_condition, BoundaryCondition};
-use input::pointload::{parse_pointload, Pointload};
-use input::material::{parse_material, Material};
+use input::keypoint::{parse_keypoint};
+use input::connection::{parse_connection};
+use input::boundary_condition::{parse_boundary_condition};
+use input::pointload::{parse_pointload};
+//use input::material::{parse_material, Material};
 use fe_engine::global_stiffness_matrix::{
     create_global_stiffness_matrix,
     apply_boundary_conditions, 
@@ -37,23 +37,23 @@ use output::plots::{reaction_plot};
 // Hardcoding material parameters, 
 // A=Area
 // E=Stiffness
-const MATERIAL_A: f64 = 5000.0;
-const MATERIAL_E: f64 = 0.1;
+const MATERIAL_AREA: f64 = 5000.0;
+const MATERIAL_E_MODULE: f64 = 0.1;
 
 fn main() {
     let kp_list = parse_keypoint("inputs/keypoints.txt");
     let conn_list = parse_connection("inputs/connections.txt");
     let bc_list = parse_boundary_condition("inputs/bcs.txt");
     let pl_list = parse_pointload("inputs/pointloads.txt");
-    let mat_list = parse_material("inputs/materials.txt");
+    //let mat_list = parse_material("inputs/materials.txt");
 
     println!("Parsed Keypoints:\n{:#?}", kp_list);
     println!("Parsed Connections:\n{:#?}", conn_list);
     println!("Parsed Boundary Conditions:\n{:#?}", bc_list);
     println!("Parsed Pointloads:\n{:#?}", pl_list);
-    println!("Parsed Materials:\n{:#?}", mat_list);
+    //println!("Parsed Materials:\n{:#?}", mat_list);
 
-    let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, MATERIAL_E, MATERIAL_A);
+    let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, MATERIAL_E_MODULE, MATERIAL_AREA);
     println!("Global stiffness matrix:\n{}", global_stiffness_matrix);
 
     let dof_filter_vector = create_dof_filter_vector(&kp_list, &bc_list);
@@ -71,5 +71,5 @@ fn main() {
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
     println!("Resulting Force Vector:\n{}", resulting_force_vector);
 
-    reaction_plot(&kp_list);
+    let _ = reaction_plot(&kp_list);
 }
