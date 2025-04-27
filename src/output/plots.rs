@@ -1,9 +1,11 @@
+use crate::input::keypoint::Keypoint;
+
 use plotters::prelude::*;
-pub fn reaction_plot(kp_list) -> Result<(), Box<dyn std::error::Error>> {
+pub fn reaction_plot(kp_list:&[Keypoint]) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("outputs/reaction_plot.png", (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
-        .caption("y=x^2", ("sans-serif", 50).into_font())
+        .caption("Reaction Plot", ("sans-serif", 50).into_font())
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(30)

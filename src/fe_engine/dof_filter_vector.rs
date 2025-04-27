@@ -3,10 +3,10 @@
 
 use nalgebra::{DVector};
 use crate::input::keypoint::Keypoint;
-use crate::input::boundary_condition::Boundary_condition;
+use crate::input::boundary_condition::BoundaryCondition;
 use std::collections::HashMap;
 
-pub fn create_dof_filter_vector(kp_list:&[Keypoint], bc_list:&[Boundary_condition]) -> DVector<f64> {
+pub fn create_dof_filter_vector(kp_list:&[Keypoint], bc_list:&[BoundaryCondition]) -> DVector<f64> {
 	// Creating dict for keypoint force directions and global force vector location.
 	let mut kp_map:HashMap<String, usize> = HashMap::new();
 	let mut number:usize = 0;

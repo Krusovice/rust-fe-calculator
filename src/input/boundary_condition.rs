@@ -1,14 +1,14 @@
 use std::fs;
 
 #[derive(Debug)]
-pub struct Boundary_condition {
+pub struct BoundaryCondition {
 	pub name: String,
 	pub keypoint: String,
 	pub fixture: String, // 0=x-direction, 1=y-direction, 2=both x and y-direction
 }
 
-pub fn parse_boundary_condition(file_path: &str) -> Vec<Boundary_condition> {
-	let mut bcs: Vec<Boundary_condition> = Vec::new();
+pub fn parse_boundary_condition(file_path: &str) -> Vec<BoundaryCondition> {
+	let mut bcs: Vec<BoundaryCondition> = Vec::new();
 
 	let content: String = fs::read_to_string(file_path).unwrap();
 
@@ -23,7 +23,7 @@ pub fn parse_boundary_condition(file_path: &str) -> Vec<Boundary_condition> {
 		let keypoint: String = parts[1].to_string();
 		let fixture: String = parts[2].to_string();
 
-		bcs.push(Boundary_condition {name, keypoint, fixture});
+		bcs.push(BoundaryCondition {name, keypoint, fixture});
 	}
 
 	bcs
