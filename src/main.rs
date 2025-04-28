@@ -39,6 +39,9 @@ use output::plots::{reaction_plot};
 // E=Stiffness
 const MATERIAL_AREA: f64 = 5000.0;
 const MATERIAL_E_MODULE: f64 = 0.1;
+const KEYPOINT_PLOT_SIZE: f32 = 3.0;
+const BC_PLOT_SIZE: f32 = 0.2;
+const POINTLOAD_PLOT_SIZE: f32 = 0.4;
 
 fn main() {
     let kp_list = parse_keypoint("inputs/keypoints.txt");
@@ -71,5 +74,5 @@ fn main() {
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
     println!("Resulting Force Vector:\n{}", resulting_force_vector);
 
-    let _ = reaction_plot(&kp_list);
+    let _ = reaction_plot(&kp_list, KEYPOINT_PLOT_SIZE, &conn_list, &bc_list, BC_PLOT_SIZE, &pl_list, POINTLOAD_PLOT_SIZE);
 }
