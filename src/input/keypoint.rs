@@ -6,6 +6,10 @@ pub struct Keypoint {
     pub name: String,
     pub x: f64,
     pub y: f64,
+    pub fx: f64,
+    pub fy: f64,
+    pub ux: f64,
+    pub uy: f64,
 }
 
 pub fn parse_keypoint(file_path: &str) -> Vec<Keypoint> {
@@ -28,7 +32,7 @@ pub fn parse_keypoint(file_path: &str) -> Vec<Keypoint> {
         let x = parts[1].parse::<f64>().unwrap();
         let y = parts[2].parse::<f64>().unwrap();
 
-        keypoints.push(Keypoint { name, x, y });
+        keypoints.push(Keypoint { name, x, y, fx:0.0, fy:0.0, ux:0.0, uy:0.0});
 
     }
 

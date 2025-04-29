@@ -7,8 +7,6 @@ use crate::material_formulation::local_stiffness_matrix_bar::local_bar_matrix;
 use crate::fe_engine::utils::global_stiffness_matrix_keypoint_hashmap;
 use std::collections::HashMap;
 
-
-
 pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], 
 									  conn_list: &[Connection], 
 									  e_module:f64, 

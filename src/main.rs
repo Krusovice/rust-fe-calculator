@@ -34,7 +34,6 @@ use fe_engine::global_stiffness_matrix::{
     calculate_resulting_force_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
-use fe_engine::utils::{global_stiffness_matrix_keypoint_hashmap};
 use output::plots::{geometry_plot};
 
 // Hardcoding material parameters, 
