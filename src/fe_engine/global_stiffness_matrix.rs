@@ -4,24 +4,22 @@ use nalgebra::{DMatrix, DVector};
 use crate::input::keypoint::Keypoint;
 use crate::input::connection::Connection;
 use crate::material_formulation::local_stiffness_matrix_bar::local_bar_matrix;
+use crate::fe_engine::utils::global_stiffness_matrix_keypoint_hashmap;
 use std::collections::HashMap;
 
-pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connection], e_module:f64, area:f64) -> DMatrix<f64> {
+
+
+pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], 
+									  conn_list: &[Connection], 
+									  e_module:f64, 
+									  area:f64
+									  ) -> DMatrix<f64> {
+	
 	// Creating size based on bar elements
 	let size: usize = 2*kp_list.len();
 
 	// Making an identity matrix based on number of keypoints
 	let mut global_identity_matrix = DMatrix::<f64>::zeros(size, size);
-
-	// Creating a dictionary for all keypoints, to associate 
-	// keypoint with global stiffness matrix location
-	let mut kp_map: HashMap<String, usize> = HashMap::new();	
-	let mut number: usize = 0;
-
-	for kp in kp_list {
-		kp_map.insert(kp.name.clone(), number);
-		number += 2;
-	}
 
 	for conn in conn_list {
 		// Finding the keypoints structs needed for calculating the local stiffness matrix.
@@ -30,6 +28,7 @@ pub fn create_global_stiffness_matrix(kp_list: &[Keypoint], conn_list: &[Connect
 		let local_bar_mat:DMatrix<f64> = local_bar_matrix(kp_1, kp_2, e_module, area);
 
 		// Finding keypoint locations in the global stiffness matrix.
+		let kp_map = global_stiffness_matrix_keypoint_hashmap(&kp_list);
 		let loc_1 = kp_map[&conn.kp_1];
 		let loc_2 = kp_map[&conn.kp_2];
 

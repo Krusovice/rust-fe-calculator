@@ -10,6 +10,7 @@ mod fe_engine {
     pub mod global_stiffness_matrix;
     pub mod dof_filter_vector;
     pub mod force_vector;
+    pub mod utils;
 }
 
 mod material_formulation {
@@ -18,6 +19,7 @@ mod material_formulation {
 
 mod output {
     pub mod plots;
+    pub mod generate_result_structs;
 }
 
 use input::keypoint::{parse_keypoint};
@@ -32,7 +34,8 @@ use fe_engine::global_stiffness_matrix::{
     calculate_resulting_force_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
-use output::plots::{reaction_plot};
+use fe_engine::utils::{global_stiffness_matrix_keypoint_hashmap};
+use output::plots::{geometry_plot};
 
 // Hardcoding material parameters, 
 // A=Area
@@ -76,7 +79,7 @@ fn main() {
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
     println!("Resulting Force Vector:\n{}", resulting_force_vector);
 
-    let _ = reaction_plot(&kp_list, 
+    let _ = geometry_plot(&kp_list, 
                           KEYPOINT_PLOT_SIZE, 
                           &conn_list, 
                           &bc_list, 

@@ -7,7 +7,7 @@ use crate::input::pointload::Pointload;
 use plotters::prelude::*;
 use plotters::coord::types::RangedCoordf32;
 
-pub fn reaction_plot(kp_list:&[Keypoint], 
+pub fn geometry_plot(kp_list:&[Keypoint], 
                      kp_size:f32, 
                      conn_list:&[Connection], 
                      bc_list:&[BoundaryCondition], 
@@ -40,6 +40,38 @@ pub fn reaction_plot(kp_list:&[Keypoint],
     Ok(())
 }
 
+pub fn reaction_plot(kp_list:&[Keypoint], 
+                     kp_size:f32, 
+                     conn_list:&[Connection], 
+                     bc_list:&[BoundaryCondition], 
+                     bc_size:f32, 
+                     pl_list:&[Pointload], 
+                     pl_size:f32,
+                     output_path:&str,
+                     dimension:(u32, u32),
+                     chart_title:&str) -> Result<(), Box<dyn std::error::Error>> {
+
+    // Creating the plotting canvas, returning the struct "chart_context"
+    let mut chart_context = plotting_canvas(&kp_list, &output_path, dimension, &chart_title);
+
+    for kp in kp_list {
+        plot_keypoint(&mut chart_context, &kp, kp_size);
+    }
+
+    for conn in conn_list {
+        plot_connection(&mut chart_context, &conn, &kp_list);
+    }
+
+    for bc in bc_list {
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, bc_size);
+    }
+
+    for pl in pl_list {
+        plot_pointload(&mut chart_context, &pl, &kp_list, pl_size);
+    }
+    
+    Ok(())
+}
 
 fn plotting_canvas<'a>(kp_list:&[Keypoint], 
                    output_path:&'a str,
