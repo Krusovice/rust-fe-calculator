@@ -22,7 +22,7 @@ pub fn reaction_plot(kp_list:&[Keypoint], kp_size:f32, conn_list:&[Connection], 
     // Creating chart content
     let mut chart_context = ChartBuilder::on(&drawing_area)
         // Set the caption of the chart
-        .caption("Keypoint Plot", ("sans-serif", 40).into_font())
+        .caption("Geometry Plot", ("sans-serif", 40).into_font())
         // Set the size of the label region
         .x_label_area_size(20)
         .y_label_area_size(40)
@@ -104,7 +104,7 @@ fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartes
 
 fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
                  pointload:&Pointload, kp_list:&[Keypoint], size:f32) {
-    
+
     // Finding the keypoint coordinates through the keypoint struct
     let kp = kp_list.iter().find(|kp| kp.name == pointload.keypoint).unwrap();
     let x = kp.x as f32;
@@ -123,4 +123,14 @@ fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ran
                                          (x-(y_direction+x_direction)*size/3.0, y+(x_direction-y_direction)*size/3.0),
                                          (x, y)],ShapeStyle::from(&BLACK).filled());
     chart_context.draw_series(std::iter::once(triangle)).unwrap();
+    
+    let label = Text::new(
+    format!("PL ({}, {})", pointload.load_x, pointload.load_y),
+    (x+size/10.0, y+size/10.0),
+    ("sans-serif", 15).into_font().color(&BLACK),
+    );
+
+    chart_context.draw_series(std::iter::once(label));
+
+
     }
