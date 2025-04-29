@@ -104,7 +104,7 @@ fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartes
 
 fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
                  pointload:&Pointload, kp_list:&[Keypoint], size:f32) {
-
+    
     // Finding the keypoint coordinates through the keypoint struct
     let kp = kp_list.iter().find(|kp| kp.name == pointload.keypoint).unwrap();
     let x = kp.x as f32;
@@ -116,7 +116,11 @@ fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ran
     let y_direction:f32 = pointload.load_y as f32 / max_force;
     
     // Drawing pointload
-    let _ = chart_context.draw_series(LineSeries::new(vec![(x, y), (x-x_direction*size, y-y_direction*size)],&BLACK));
-    let triangle = PathElement::new(vec![(x, y),(x-(y_direction+x_direction)*0.3*size, y-(y_direction+x_direction)*0.3*size),(x+(y_direction+x_direction)*0.3*size, y-(y_direction+x_direction)*0.3*size),(x, y)],ShapeStyle::from(&BLACK).filled());
+    let arrow_straight_line = LineSeries::new(vec![(x, y), (x-x_direction*size, y-y_direction*size)],&BLACK);
+    let _ = chart_context.draw_series(arrow_straight_line);
+    let triangle = PathElement::new(vec![(x, y),
+                                         (x+(y_direction-x_direction)*size/3.0, y-(x_direction+y_direction)*size/3.0),
+                                         (x-(y_direction+x_direction)*size/3.0, y+(x_direction-y_direction)*size/3.0),
+                                         (x, y)],ShapeStyle::from(&BLACK).filled());
     chart_context.draw_series(std::iter::once(triangle)).unwrap();
     }
