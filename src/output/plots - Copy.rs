@@ -7,44 +7,10 @@ use crate::input::pointload::Pointload;
 use plotters::prelude::*;
 use plotters::coord::types::RangedCoordf32;
 
-pub fn reaction_plot(kp_list:&[Keypoint], 
-                     kp_size:f32, 
-                     conn_list:&[Connection], 
-                     bc_list:&[BoundaryCondition], 
-                     bc_size:f32, 
-                     pl_list:&[Pointload], 
-                     pl_size:f32,
-                     output_path:&str,
-                     dimension:(u32, u32),
-                     chart_title:&str) -> Result<(), Box<dyn std::error::Error>> {
-
-    // Creating the plotting canvas, returning the struct "chart_context"
-    let mut chart_context = plotting_canvas(&kp_list, &output_path, dimension, &chart_title);
-
-    for kp in kp_list {
-        plot_keypoint(&mut chart_context, &kp, kp_size);
-    }
-
-    for conn in conn_list {
-        plot_connection(&mut chart_context, &conn, &kp_list);
-    }
-
-    for bc in bc_list {
-        plot_boundary_condition(&mut chart_context, &bc, &kp_list, bc_size);
-    }
-
-    for pl in pl_list {
-        plot_pointload(&mut chart_context, &pl, &kp_list, pl_size);
-    }
-    
-    Ok(())
-}
-
-
-fn plotting_canvas<'a>(kp_list:&[Keypoint], 
-                   output_path:&'a str,
+fn plotting_canvas(kp_list:&[Keypoint], 
+                   output_path:&str,
                    dimension: (u32, u32),
-                   chart_title:&str) -> ChartContext<'a, BitMapBackend<'a>, Cartesian2d<RangedCoordf32, RangedCoordf32>> {
+                   chart_title:&str) -> ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>> {
                    
     let min_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::INFINITY, |acc, x| f32::min(acc,x));
     let max_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::NEG_INFINITY, |acc, x| f32::max(acc,x));
@@ -66,16 +32,55 @@ fn plotting_canvas<'a>(kp_list:&[Keypoint],
         .build_cartesian_2d(min_x-1.0..max_x+1.0, min_y-1.0..max_y+1.0)
         .unwrap();
 
+    chart_context
+}
+
+pub fn reaction_plot(kp_list:&[Keypoint], kp_size:f32, conn_list:&[Connection], bc_list:&[BoundaryCondition], bc_size:f32, pl_list:&[Pointload], pl_size:f32) -> Result<(), Box<dyn std::error::Error>> {
+    let min_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::INFINITY, |acc, x| f32::min(acc,x));
+    let max_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::NEG_INFINITY, |acc, x| f32::max(acc,x));
+    let min_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::INFINITY, |acc, y| f32::min(acc,y));
+    let max_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::NEG_INFINITY, |acc, y| f32::max(acc,y));
+    
+    let backend = BitMapBackend::new("outputs/reaction_plot.png", (640, 480));
+    let drawing_area = backend.into_drawing_area();
+    drawing_area.fill(&WHITE)?;
+
+    // Creating chart content
+    let mut chart_context = ChartBuilder::on(&drawing_area)
+        // Set the caption of the chart
+        .caption("Geometry Plot", ("sans-serif", 40).into_font())
+        // Set the size of the label region
+        .x_label_area_size(20)
+        .y_label_area_size(40)
+        // Finally attach a coordinate on the drawing area and make a chart context
+        .build_cartesian_2d(min_x-1.0..max_x+1.0, min_y-1.0..max_y+1.0)?;
+
     // Drawing background mesh
     chart_context
         .configure_mesh()
         // We can customize the maximum number of labels allowed for each axis
         .x_labels(5)
         .y_labels(5)
-        .draw()
-        .unwrap();
-    drawing_area.present().unwrap();
-    chart_context
+        .draw()?;
+
+    for kp in kp_list {
+        plot_keypoint(&mut chart_context, &kp, kp_size);
+    }
+
+    for conn in conn_list {
+        plot_connection(&mut chart_context, &conn, &kp_list);
+    }
+
+    for bc in bc_list {
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, bc_size);
+    }
+
+    for pl in pl_list {
+        plot_pointload(&mut chart_context, &pl, &kp_list, pl_size);
+    }
+    
+    drawing_area.present()?;
+    Ok(())
 }
 
 fn plot_keypoint(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
@@ -151,5 +156,5 @@ fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ran
     ("sans-serif", 15).into_font().color(&BLACK),
     );
 
-    let _ = chart_context.draw_series(std::iter::once(label));
+    chart_context.draw_series(std::iter::once(label));
     }
