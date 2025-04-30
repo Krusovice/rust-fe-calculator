@@ -13,7 +13,7 @@ pub struct Keypoint {
 }
 
 pub fn parse_keypoint(file_path: &str) -> Vec<Keypoint> {
-    let mut keypoints: Vec<Keypoint> = Vec::new();
+    let mut kp_list: Vec<Keypoint> = Vec::new();
 
     let content: String = fs::read_to_string(file_path).unwrap();
 
@@ -32,9 +32,9 @@ pub fn parse_keypoint(file_path: &str) -> Vec<Keypoint> {
         let x = parts[1].parse::<f64>().unwrap();
         let y = parts[2].parse::<f64>().unwrap();
 
-        keypoints.push(Keypoint { name, x, y, fx:0.0, fy:0.0, ux:0.0, uy:0.0});
+        kp_list.push(Keypoint { name, x, y, fx:0.0, fy:0.0, ux:0.0, uy:0.0});
 
     }
 
-    keypoints
+    kp_list
 }

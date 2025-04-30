@@ -35,6 +35,7 @@ use fe_engine::global_stiffness_matrix::{
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
 use output::plots::{geometry_plot};
+use output::generate_result_structs::{generate_result_keypoint};
 
 // Hardcoding material parameters, 
 // A=Area
@@ -48,7 +49,7 @@ const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
 const PLOT_DIMENSION: (u32, u32) = (640, 480);
 
 fn main() {
-    let kp_list = parse_keypoint("inputs/keypoints.txt");
+    let mut kp_list = parse_keypoint("inputs/keypoints.txt");
     let conn_list = parse_connection("inputs/connections.txt");
     let bc_list = parse_boundary_condition("inputs/bcs.txt");
     let pl_list = parse_pointload("inputs/pointloads.txt");
@@ -77,6 +78,9 @@ fn main() {
 
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
     println!("Resulting Force Vector:\n{}", resulting_force_vector);
+
+    generate_result_keypoint(&mut kp_list, &resulting_force_vector, &resulting_displacement_vector);
+    println!("Resulting keypoint forces and displacements:\n{:#?}", kp_list);
 
     let _ = geometry_plot(&kp_list, 
                           KEYPOINT_PLOT_SIZE, 
