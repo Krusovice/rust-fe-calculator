@@ -3,26 +3,24 @@ use crate::input::connection::Connection;
 use crate::input::boundary_condition::BoundaryCondition;
 use crate::input::pointload::Pointload;
 
-
 use plotters::prelude::*;
 use plotters::coord::types::RangedCoordf32;
 
+
 pub fn geometry_plot(kp_list:&[Keypoint], 
-                     kp_size:f32, 
                      conn_list:&[Connection], 
                      bc_list:&[BoundaryCondition], 
-                     bc_size:f32, 
                      pl_list:&[Pointload], 
-                     pl_size:f32,
+                     plot_feature_size:f32,
                      output_path:&str,
                      dimension:(u32, u32),
                      chart_title:&str) -> Result<(), Box<dyn std::error::Error>> {
 
     // Creating the plotting canvas, returning the struct "chart_context"
-    let mut chart_context = plotting_canvas(&kp_list, &output_path, dimension, &chart_title);
+    let mut chart_context = plot_canvas(&kp_list, &output_path, dimension, &chart_title);
 
     for kp in kp_list {
-        plot_keypoint(&mut chart_context, &kp, kp_size);
+        plot_keypoint(&mut chart_context, &kp, plot_feature_size);
     }
 
     for conn in conn_list {
@@ -30,50 +28,52 @@ pub fn geometry_plot(kp_list:&[Keypoint],
     }
 
     for bc in bc_list {
-        plot_boundary_condition(&mut chart_context, &bc, &kp_list, bc_size);
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size);
     }
 
     for pl in pl_list {
-        plot_pointload(&mut chart_context, &pl, &kp_list, pl_size);
+        plot_pointload(&mut chart_context, &pl, &kp_list, plot_feature_size);
     }
-    
+
     Ok(())
 }
 
 pub fn reaction_plot(kp_list:&[Keypoint], 
-                     kp_size:f32, 
                      conn_list:&[Connection], 
                      bc_list:&[BoundaryCondition], 
-                     bc_size:f32, 
                      pl_list:&[Pointload], 
-                     pl_size:f32,
+                     plot_feature_size:f32,
                      output_path:&str,
                      dimension:(u32, u32),
-                     chart_title:&str) -> Result<(), Box<dyn std::error::Error>> {
+                     chart_title:&str,
+                     plot_result_scale:f32,
+                     plot_result_decimals:usize,) -> Result<(), Box<dyn std::error::Error>> {
 
     // Creating the plotting canvas, returning the struct "chart_context"
-    let mut chart_context = plotting_canvas(&kp_list, &output_path, dimension, &chart_title);
+    let mut chart_context = plot_canvas(&kp_list, &output_path, dimension, &chart_title);
 
     for kp in kp_list {
-        plot_keypoint(&mut chart_context, &kp, kp_size);
+        plot_keypoint(&mut chart_context, &kp, plot_feature_size);
+        plot_keypoint_displaced(&mut chart_context, &kp, plot_feature_size, plot_result_scale, plot_result_decimals);
     }
 
     for conn in conn_list {
         plot_connection(&mut chart_context, &conn, &kp_list);
+        plot_connection_displaced(&mut chart_context, &conn, &kp_list, plot_result_scale);
     }
 
     for bc in bc_list {
-        plot_boundary_condition(&mut chart_context, &bc, &kp_list, bc_size);
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size);
     }
 
     for pl in pl_list {
-        plot_pointload(&mut chart_context, &pl, &kp_list, pl_size);
+        plot_pointload(&mut chart_context, &pl, &kp_list, plot_feature_size);
     }
     
     Ok(())
 }
 
-fn plotting_canvas<'a>(kp_list:&[Keypoint], 
+fn plot_canvas<'a>(kp_list:&[Keypoint],
                    output_path:&'a str,
                    dimension: (u32, u32),
                    chart_title:&str) -> ChartContext<'a, BitMapBackend<'a>, Cartesian2d<RangedCoordf32, RangedCoordf32>> {
@@ -111,10 +111,24 @@ fn plotting_canvas<'a>(kp_list:&[Keypoint],
 }
 
 fn plot_keypoint(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
-                 keypoint:&Keypoint, size:f32) {
+                 keypoint:&Keypoint, plot_feature_size:f32) {
     let x = keypoint.x as f32;
     let y = keypoint.y as f32;
-    let _ = chart_context.draw_series(std::iter::once(Circle::new((x,y), size, ShapeStyle::from(&BLACK).filled())));
+    let _ = chart_context.draw_series(std::iter::once(Circle::new((x,y), plot_feature_size, ShapeStyle::from(&BLACK).filled())));
+    }
+
+// Plotting resulting keypoint locations, after being displaced.
+fn plot_keypoint_displaced(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
+                 keypoint:&Keypoint, plot_feature_size:f32, plot_result_scale:f32, plot_result_decimals:usize) {
+    let x = keypoint.x as f32 + keypoint.ux as f32 * plot_result_scale;
+    let y = keypoint.y as f32 + keypoint.uy as f32 * plot_result_scale;
+    let _ = chart_context.draw_series(std::iter::once(Circle::new((x,y), plot_feature_size, ShapeStyle::from(&RED).filled())));
+    
+    if keypoint.ux != 0.0 || keypoint.uy != 0.0 {
+        let label = format!("U ({:.2$}, {:.2$})", keypoint.ux, keypoint.uy, plot_result_decimals);
+        plot_label(label, x, y, plot_feature_size, chart_context);
+        }
+    
     }
 
 fn plot_connection(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
@@ -123,13 +137,33 @@ fn plot_connection(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ra
     // Finding the keypoint coordinates through the keypoint struct
     let kp1 = kp_list.iter().find(|kp| kp.name == connection.kp_1).unwrap();
     let kp2 = kp_list.iter().find(|kp| kp.name == connection.kp_2).unwrap();
+    let kp1_x = kp1.x as f32;
+    let kp1_y = kp1.y as f32;
+    let kp2_x = kp2.x as f32;
+    let kp2_y = kp2.y as f32;
 
-    let _ = chart_context.draw_series(LineSeries::new(vec![(kp1.x as f32, kp1.y as f32), (kp2.x as f32, kp2.y as f32)],&BLACK));
+    let _ = chart_context.draw_series(LineSeries::new(vec![(kp1_x, kp1_y), (kp2_x, kp2_y)],&BLACK));
     }
 
+fn plot_connection_displaced(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
+                 connection:&Connection, kp_list:&[Keypoint], plot_result_scale:f32) {
+
+    // Finding the keypoint coordinates through the keypoint struct
+    let kp1 = kp_list.iter().find(|kp| kp.name == connection.kp_1).unwrap();
+    let kp2 = kp_list.iter().find(|kp| kp.name == connection.kp_2).unwrap();
+    let kp1_x = kp1.x as f32 + kp1.ux as f32 * plot_result_scale;
+    let kp1_y = kp1.y as f32 + kp1.uy as f32 * plot_result_scale;
+    let kp2_x = kp2.x as f32 + kp2.ux as f32 * plot_result_scale;
+    let kp2_y = kp2.y as f32 + kp2.uy as f32 * plot_result_scale;
+
+    let _ = chart_context.draw_series(LineSeries::new(vec![(kp1_x, kp1_y), (kp2_x, kp2_y)],&RED));
+    }    
+
 fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
-                 boundary_condition:&BoundaryCondition, kp_list:&[Keypoint], size:f32) {
-    
+                 boundary_condition:&BoundaryCondition, kp_list:&[Keypoint], plot_feature_size:f32) {
+
+    let size:f32 = plot_feature_size/15.0;
+
     // Finding the keypoint of the boundary condition, and its x and y coordinates.
     let kp = kp_list.iter().find(|kp| kp.name == boundary_condition.keypoint).unwrap();
     let x = kp.x as f32;
@@ -156,7 +190,8 @@ fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartes
 }
 
 fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
-                 pointload:&Pointload, kp_list:&[Keypoint], size:f32) {
+                 pointload:&Pointload, kp_list:&[Keypoint], plot_feature_size:f32) {
+    let size:f32 = plot_feature_size/7.0;
 
     // Finding the keypoint coordinates through the keypoint struct
     let kp = kp_list.iter().find(|kp| kp.name == pointload.keypoint).unwrap();
@@ -177,11 +212,15 @@ fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ran
                                          (x, y)],ShapeStyle::from(&BLACK).filled());
     chart_context.draw_series(std::iter::once(triangle)).unwrap();
     
-    let label = Text::new(
-    format!("PL ({}, {})", pointload.load_x, pointload.load_y),
-    (x+size/10.0, y+size/10.0),
-    ("sans-serif", 15).into_font().color(&BLACK),
-    );
+    plot_label(format!("PL ({}, {})", pointload.load_x, pointload.load_y),
+               x, y, plot_feature_size, chart_context);
+    }
 
+fn plot_label(text_label: String, x:f32, y:f32, plot_feature_size: f32,
+              chart_context: &mut ChartContext<BitMapBackend, 
+                                  Cartesian2d<RangedCoordf32, 
+                                  RangedCoordf32>>) {
+    let text_size: i32 = (plot_feature_size*6.0) as i32;
+    let label = Text::new(text_label, (x+plot_feature_size/50.0, y+plot_feature_size/100.0),("sans-serif", text_size).into_font().color(&BLACK));
     let _ = chart_context.draw_series(std::iter::once(label));
     }

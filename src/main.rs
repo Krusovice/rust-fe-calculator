@@ -19,6 +19,9 @@ mod material_formulation {
 
 mod output {
     pub mod plots;
+}
+
+mod data_formatting {
     pub mod generate_result_structs;
 }
 
@@ -34,19 +37,21 @@ use fe_engine::global_stiffness_matrix::{
     calculate_resulting_force_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
-use output::plots::{geometry_plot};
-use output::generate_result_structs::{generate_result_keypoint};
+use output::plots::{geometry_plot, reaction_plot};
+use data_formatting::generate_result_structs::{generate_result_keypoint};
 
 // Hardcoding material parameters, 
 // A=Area
 // E=Stiffness
 const MATERIAL_AREA: f64 = 5000.0;
 const MATERIAL_E_MODULE: f64 = 0.1;
-const KEYPOINT_PLOT_SIZE: f32 = 3.0;
-const BC_PLOT_SIZE: f32 = 0.2;
 const POINTLOAD_PLOT_SIZE: f32 = 0.4;
-const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
+const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
+const REACTION_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
 const PLOT_DIMENSION: (u32, u32) = (640, 480);
+const PLOT_RESULT_SCALE: f32 = 5.0;
+const PLOT_FEATURE_SIZE: f32 = 3.0;
+const PLOT_RESULT_DECIMALS: usize = 3;
 
 fn main() {
     let mut kp_list = parse_keypoint("inputs/keypoints.txt");
@@ -83,13 +88,22 @@ fn main() {
     println!("Resulting keypoint forces and displacements:\n{:#?}", kp_list);
 
     let _ = geometry_plot(&kp_list, 
-                          KEYPOINT_PLOT_SIZE, 
                           &conn_list, 
                           &bc_list, 
-                          BC_PLOT_SIZE, 
                           &pl_list, 
-                          POINTLOAD_PLOT_SIZE,
+                          PLOT_FEATURE_SIZE,
                           &GEOMETRY_PLOT_OUTPUT_PATH,
                           PLOT_DIMENSION,
                           &"Geometry Plot");
+
+    let _ = reaction_plot(&kp_list, 
+                          &conn_list, 
+                          &bc_list, 
+                          &pl_list, 
+                          PLOT_FEATURE_SIZE,
+                          &REACTION_PLOT_OUTPUT_PATH,
+                          PLOT_DIMENSION,
+                          &"Reaction Plot",
+                          PLOT_RESULT_SCALE,
+                          PLOT_RESULT_DECIMALS);
 }
