@@ -27,8 +27,10 @@ pub fn geometry_plot(kp_list:&[Keypoint],
         plot_connection(&mut chart_context, &conn, &kp_list);
     }
 
+    let plot_reaction:bool = false;
+    let plot_result_decimals:usize = 0;
     for bc in bc_list {
-        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size);
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size,plot_reaction,plot_result_decimals);
     }
 
     for pl in pl_list {
@@ -62,8 +64,9 @@ pub fn reaction_plot(kp_list:&[Keypoint],
         plot_connection_displaced(&mut chart_context, &conn, &kp_list, plot_result_scale);
     }
 
+    let plot_reaction:bool = true;
     for bc in bc_list {
-        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size);
+        plot_boundary_condition(&mut chart_context, &bc, &kp_list, plot_feature_size,plot_reaction,plot_result_decimals);
     }
 
     for pl in pl_list {
@@ -128,7 +131,6 @@ fn plot_keypoint_displaced(chart_context:&mut ChartContext<BitMapBackend, Cartes
         let label = format!("U ({:.2$}, {:.2$})", keypoint.ux, keypoint.uy, plot_result_decimals);
         plot_label(label, x, y, plot_feature_size, chart_context);
         }
-    
     }
 
 fn plot_connection(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
@@ -160,7 +162,7 @@ fn plot_connection_displaced(chart_context:&mut ChartContext<BitMapBackend, Cart
     }    
 
 fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>, 
-                 boundary_condition:&BoundaryCondition, kp_list:&[Keypoint], plot_feature_size:f32) {
+                 boundary_condition:&BoundaryCondition, kp_list:&[Keypoint], plot_feature_size:f32,plot_reaction:bool, plot_result_decimals:usize) {
 
     let size:f32 = plot_feature_size/15.0;
 
@@ -186,6 +188,13 @@ fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Cartes
     } else if boundary_condition.fixture == "2" {
         let triangle = PathElement::new(vec![(x, y),(x-size/2.0, y-size),(x+size/2.0, y-size),(x, y)],ShapeStyle::from(&BLACK).filled());
         chart_context.draw_series(std::iter::once(triangle)).unwrap();
+    }
+
+    if plot_reaction {
+        if kp.fx != 0.0 || kp.fy != 0.0 {
+        let label = format!("F ({:.2$}, {:.2$})", kp.fx, kp.fy, plot_result_decimals);
+        plot_label(label, x, y, plot_feature_size, chart_context);
+        }
     }
 }
 
