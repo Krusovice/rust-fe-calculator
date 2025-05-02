@@ -48,10 +48,10 @@ const MATERIAL_E_MODULE: f64 = 210000.0;
 const POINTLOAD_PLOT_SIZE: f32 = 0.4;
 const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
 const REACTION_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
-const PLOT_DIMENSION: (u32, u32) = (640, 480);
+const PLOT_DIMENSION: (u32, u32) = (800, 300);
 const PLOT_RESULT_SCALE: f32 = 1.0;
 const PLOT_FEATURE_SIZE: f32 = 2.0;
-const PLOT_RESULT_DECIMALS: usize = 3;
+const PLOT_RESULT_DECIMALS: usize = 2;
 
 fn main() {
     let mut kp_list = parse_keypoint("inputs/keypoints.txt");
