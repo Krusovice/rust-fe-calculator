@@ -5,6 +5,8 @@ This application parses model inputs from `.txt` files, making it easy to modify
 
 > ⚠️ This project is currently in active development. Expect changes and improvements.
 
+## Result Example
+![Plot example](images/reaction_plot.png)
 
 ## How to Run
 - Set files in the `inputs/` directory: `keypoints.txt`, `connections`, `pointloads` `boundary-conditions` (contains a preset simple structure as example).
@@ -41,6 +43,10 @@ The application follows these steps:
 - Custom-built FE core logic.
 
 ## Future Implementation Ideas
-- Add support for beam elements (bending).
-- Create a visualization module for geometry and force + displacement overview.
-- Add spring stiffness boundary conditions.
+- Spring stiffness boundary conditions.
+- Support for beam elements (bending).
+- Export of all keypoint results in json format.
+- Various material parameters for elements (currently applying 1 hardcoded material)
+- Scripting example of a large building
+- Non-linear behaviour. Test gradient descent and Newton-Rhapson solvers.
+
