@@ -1,0 +1,26 @@
+### connections ###
+### name, connection start, connection end, material ###
+### Top Connections ###
+conn, kp1, kp2, mat1
+conn, kp2, kp3, mat1
+conn, kp3, kp4, mat1
+conn, kp4, kp5, mat1
+conn, kp5, kp6, mat1
+conn, kp6, kp7, mat1
+### Bottom connections ###
+conn, kp8, kp9, mat1
+conn, kp9, kp10, mat1
+conn, kp10, kp11, mat1
+conn, kp11, kp12, mat1
+### Bracing ###
+conn, kp1, kp8, mat1
+conn, kp8, kp2, mat1
+conn, kp2, kp9, mat1
+conn, kp9, kp3, mat1
+conn, kp3, kp10, mat1
+conn, kp10, kp4, mat1
+conn, kp4, kp11, mat1
+conn, kp11, kp5, mat1
+conn, kp5, kp12, mat1
+conn, kp12, kp6, mat1
+conn, kp12, kp7, mat1
