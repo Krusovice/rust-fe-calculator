@@ -18,7 +18,10 @@ mod material_formulation {
 }
 
 mod output {
-    pub mod plots;
+    pub mod canvas;
+    pub mod figures;
+    pub mod content_and_labels;
+    
 }
 
 mod data_formatting {
@@ -37,7 +40,7 @@ use fe_engine::global_stiffness_matrix::{
     calculate_resulting_force_vector};
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
-use output::plots::{geometry_plot, reaction_plot};
+use output::figures::{geometry_plot, reaction_plot};
 use data_formatting::generate_result_structs::{generate_result_keypoint};
 
 // Hardcoding material parameters, 
