@@ -118,6 +118,9 @@ fn plot_keypoint(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Rang
     let x = keypoint.x as f32;
     let y = keypoint.y as f32;
     let _ = chart_context.draw_series(std::iter::once(Circle::new((x,y), plot_feature_size, ShapeStyle::from(&BLACK).filled())));
+
+    let label = format!("{}", keypoint.name);
+        plot_label(label, x, y, plot_feature_size, chart_context);
     }
 
 // Plotting resulting keypoint locations, after being displaced.
@@ -221,8 +224,8 @@ fn plot_pointload(chart_context:&mut ChartContext<BitMapBackend, Cartesian2d<Ran
                                          (x, y)],ShapeStyle::from(&BLACK).filled());
     chart_context.draw_series(std::iter::once(triangle)).unwrap();
     
-    plot_label(format!("PL ({}, {})", pointload.load_x, pointload.load_y),
-               x, y, plot_feature_size, chart_context);
+    //plot_label(format!("PL ({}, {})", pointload.load_x, pointload.load_y),
+    //           x, y, plot_feature_size, chart_context);
     }
 
 fn plot_label(text_label: String, x:f32, y:f32, plot_feature_size: f32,

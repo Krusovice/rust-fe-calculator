@@ -43,14 +43,14 @@ use data_formatting::generate_result_structs::{generate_result_keypoint};
 // Hardcoding material parameters, 
 // A=Area
 // E=Stiffness
-const MATERIAL_AREA: f64 = 5000.0;
-const MATERIAL_E_MODULE: f64 = 0.1;
+const MATERIAL_AREA: f64 = 0.1;
+const MATERIAL_E_MODULE: f64 = 210000.0;
 const POINTLOAD_PLOT_SIZE: f32 = 0.4;
 const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
 const REACTION_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
 const PLOT_DIMENSION: (u32, u32) = (640, 480);
-const PLOT_RESULT_SCALE: f32 = 5.0;
-const PLOT_FEATURE_SIZE: f32 = 3.0;
+const PLOT_RESULT_SCALE: f32 = 10.0;
+const PLOT_FEATURE_SIZE: f32 = 2.0;
 const PLOT_RESULT_DECIMALS: usize = 3;
 
 fn main() {
@@ -66,6 +66,15 @@ fn main() {
     println!("Parsed Pointloads:\n{:#?}", pl_list);
     //println!("Parsed Materials:\n{:#?}", mat_list);
 
+    let _ = geometry_plot(&kp_list, 
+                          &conn_list, 
+                          &bc_list, 
+                          &pl_list, 
+                          PLOT_FEATURE_SIZE,
+                          &GEOMETRY_PLOT_OUTPUT_PATH,
+                          PLOT_DIMENSION,
+                          &"Geometry Plot");
+
     let global_stiffness_matrix = create_global_stiffness_matrix(&kp_list, &conn_list, MATERIAL_E_MODULE, MATERIAL_AREA);
     println!("Global stiffness matrix:\n{}", global_stiffness_matrix);
 
@@ -74,6 +83,8 @@ fn main() {
 
     let force_vector = create_force_vector(&kp_list, &pl_list);
     println!("Force vector:\n{}", force_vector);
+
+
 
     let modified_global_stiffness_matrix = apply_boundary_conditions(&global_stiffness_matrix, &dof_filter_vector);
     println!("Modified global stiffness matrix:\n{}", modified_global_stiffness_matrix);
@@ -86,15 +97,6 @@ fn main() {
 
     generate_result_keypoint(&mut kp_list, &resulting_force_vector, &resulting_displacement_vector);
     println!("Resulting keypoint forces and displacements:\n{:#?}", kp_list);
-
-    let _ = geometry_plot(&kp_list, 
-                          &conn_list, 
-                          &bc_list, 
-                          &pl_list, 
-                          PLOT_FEATURE_SIZE,
-                          &GEOMETRY_PLOT_OUTPUT_PATH,
-                          PLOT_DIMENSION,
-                          &"Geometry Plot");
 
     let _ = reaction_plot(&kp_list, 
                           &conn_list, 
