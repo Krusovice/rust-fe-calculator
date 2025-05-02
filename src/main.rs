@@ -21,6 +21,7 @@ mod output {
     pub mod canvas;
     pub mod figures;
     pub mod content_and_labels;
+    pub mod keypoint_results;
     
 }
 
@@ -41,6 +42,7 @@ use fe_engine::global_stiffness_matrix::{
 use fe_engine::dof_filter_vector::{create_dof_filter_vector};
 use fe_engine::force_vector::{create_force_vector};
 use output::figures::{geometry_plot, reaction_plot};
+use output::keypoint_results::eksport_keypoint_structs;
 use data_formatting::generate_result_structs::{generate_result_keypoint};
 
 // Hardcoding material parameters, 
@@ -50,6 +52,7 @@ const MATERIAL_AREA: f64 = 0.1;
 const MATERIAL_E_MODULE: f64 = 210000.0;
 const PLOT_GEOMETRY_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
 const PLOT_REACTION_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
+const SAVE_KEYPOINT_STRUCTS_PATH: &str = "outputs/keypoint_result_data.json";
 const PLOT_DIMENSION: (u32, u32) = (800, 300);
 const PLOT_RESULT_SCALE: f32 = 1.0;
 const PLOT_FEATURE_SIZE: f32 = 2.0;
@@ -110,4 +113,6 @@ fn main() {
                           &"Reaction Plot",
                           PLOT_RESULT_SCALE,
                           PLOT_RESULT_DECIMALS);
+
+    eksport_keypoint_structs(&kp_list, SAVE_KEYPOINT_STRUCTS_PATH);
 }

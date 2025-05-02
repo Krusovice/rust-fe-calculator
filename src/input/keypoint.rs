@@ -1,7 +1,9 @@
 use std::fs;
+use serde::Serialize;
 
 // Structure for keypoint objects.
 #[derive(Debug)]
+#[derive(Serialize)]
 pub struct Keypoint {
     pub name: String,
     pub x: f64,
