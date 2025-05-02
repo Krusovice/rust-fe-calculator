@@ -45,9 +45,8 @@ use data_formatting::generate_result_structs::{generate_result_keypoint};
 // E=Stiffness
 const MATERIAL_AREA: f64 = 0.1;
 const MATERIAL_E_MODULE: f64 = 210000.0;
-const POINTLOAD_PLOT_SIZE: f32 = 0.4;
-const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
-const REACTION_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
+const PLOT_GEOMETRY_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
+const PLOT_REACTION_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
 const PLOT_DIMENSION: (u32, u32) = (800, 300);
 const PLOT_RESULT_SCALE: f32 = 1.0;
 const PLOT_FEATURE_SIZE: f32 = 2.0;
@@ -71,7 +70,7 @@ fn main() {
                           &bc_list, 
                           &pl_list, 
                           PLOT_FEATURE_SIZE,
-                          &GEOMETRY_PLOT_OUTPUT_PATH,
+                          &PLOT_GEOMETRY_OUTPUT_PATH,
                           PLOT_DIMENSION,
                           &"Geometry Plot");
 
@@ -103,7 +102,7 @@ fn main() {
                           &bc_list, 
                           &pl_list, 
                           PLOT_FEATURE_SIZE,
-                          &REACTION_PLOT_OUTPUT_PATH,
+                          &PLOT_REACTION_OUTPUT_PATH,
                           PLOT_DIMENSION,
                           &"Reaction Plot",
                           PLOT_RESULT_SCALE,
