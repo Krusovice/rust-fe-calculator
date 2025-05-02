@@ -74,7 +74,6 @@ pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filt
 			modified_global_stiffness_matrix[(i,i)] = 1.0;
 		}
 	}
-
 	modified_global_stiffness_matrix
 }
 
@@ -82,7 +81,7 @@ pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filt
 // Before inverting, all dof's (rows and columns) with fixed boundary conditions (diagonal elements = 1).
 // are removed. That for both vector and global stiffness matrix.
 // After inverting, the global stiffness matrix is assembled again, by re-adding the removed dof's.
-pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:&DMatrix<f64>, force_vector:&DVector<f64>) -> DVector<f64> {
+pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:&DMatrix<f64>, force_vector:&DVector<f64>, dof_filter_vector:&DVector<f64>) -> DVector<f64> {
 
 	// Creating a hashmap for correlating matrix locations for global and reduced stiffness matrices.
 	// The key is the total stiffness matrix location. The value is the reduced stiffness matrix location.
@@ -92,7 +91,7 @@ pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:
 	let size:usize = force_vector.nrows();
 	let mut loc_reduced:i32 = 0;
 	for loc_global in 0..size {
-		if force_vector[loc_global] == 0.0 {
+		if dof_filter_vector[loc_global] == 0.0 {
 			global_stiffness_matrix_map.insert(loc_global,-999);
 		}
 		else {
@@ -106,6 +105,7 @@ pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:
 	// That means that each column and row that contains a zero, is removed.
 	// That is the reduced stiffness matrix. The same rows are removed for the force vector.
 	let size_reduced = global_stiffness_matrix_map.values().filter(|&&v| v != -999).count();
+
 
 	let mut modified_global_stiffness_matrix_reduced:DMatrix<f64> = DMatrix::<f64>::zeros(size_reduced,size_reduced);
 	let mut force_vector_reduced:DVector<f64> = DVector::<f64>::zeros(size_reduced);
@@ -129,7 +129,6 @@ pub fn calculate_resulting_displacement_vector(modified_global_stiffness_matrix:
 	// The displacements (u) at location with no bc's are found
 	// by solving the reduced stiffness matrix and reduced force vector. u*K=F.
 	// Applying nalgebra's lu solver to solve.
-
 	let lu = modified_global_stiffness_matrix_reduced.clone().lu();
 	let displacement_vector_reduced = lu.solve(&force_vector_reduced).unwrap();
 

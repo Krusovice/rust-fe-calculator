@@ -1,4 +1,3 @@
 ### pointloads ###
 ### name, keypoint, loadsize in x-direction, loadsize in y-direction ###
-p1, kp2, 0, -200
-p1, kp5, 0, -400
+p1, kp6, 0, -200

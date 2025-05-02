@@ -49,7 +49,7 @@ const POINTLOAD_PLOT_SIZE: f32 = 0.4;
 const GEOMETRY_PLOT_OUTPUT_PATH: &str = "outputs/geometry_plot.png";
 const REACTION_PLOT_OUTPUT_PATH: &str = "outputs/reaction_plot.png";
 const PLOT_DIMENSION: (u32, u32) = (640, 480);
-const PLOT_RESULT_SCALE: f32 = 10.0;
+const PLOT_RESULT_SCALE: f32 = 1.0;
 const PLOT_FEATURE_SIZE: f32 = 2.0;
 const PLOT_RESULT_DECIMALS: usize = 3;
 
@@ -89,7 +89,7 @@ fn main() {
     let modified_global_stiffness_matrix = apply_boundary_conditions(&global_stiffness_matrix, &dof_filter_vector);
     println!("Modified global stiffness matrix:\n{}", modified_global_stiffness_matrix);
 
-    let resulting_displacement_vector = calculate_resulting_displacement_vector(&modified_global_stiffness_matrix, &force_vector);
+    let resulting_displacement_vector = calculate_resulting_displacement_vector(&modified_global_stiffness_matrix, &force_vector, &dof_filter_vector);
     println!("Resulting Displacement Vector:\n{}", resulting_displacement_vector);
 
     let resulting_force_vector = calculate_resulting_force_vector(&global_stiffness_matrix, &resulting_displacement_vector);
