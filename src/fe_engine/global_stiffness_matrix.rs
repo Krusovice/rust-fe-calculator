@@ -73,6 +73,10 @@ pub fn apply_boundary_conditions(global_stiffness_matrix:&DMatrix<f64>, dof_filt
 			}
 			modified_global_stiffness_matrix[(i,i)] = 1.0;
 		}
+
+		else if dof_filter_vector[i] > 0.0 {
+			modified_global_stiffness_matrix[(i,i)] += dof_filter_vector[i];
+		}
 	}
 	modified_global_stiffness_matrix
 }

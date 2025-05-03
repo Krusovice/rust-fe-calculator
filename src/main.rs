@@ -89,8 +89,6 @@ fn main() {
     let force_vector = create_force_vector(&kp_list, &pl_list);
     println!("Force vector:\n{}", force_vector);
 
-
-
     let modified_global_stiffness_matrix = apply_boundary_conditions(&global_stiffness_matrix, &dof_filter_vector);
     println!("Modified global stiffness matrix:\n{}", modified_global_stiffness_matrix);
 
