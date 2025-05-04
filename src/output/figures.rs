@@ -54,14 +54,14 @@ pub fn reaction_plot(kp_list:&[Keypoint],
     // Creating the plotting canvas, returning the struct "chart_context"
     let mut chart_context = plot_canvas(&kp_list, &output_path, dimension, &chart_title);
 
-    for kp in kp_list {
-        plot_keypoint(&mut chart_context, &kp, plot_feature_size);
-        plot_keypoint_displaced(&mut chart_context, &kp, plot_feature_size, plot_result_scale, plot_result_decimals);
-    }
-
     for conn in conn_list {
         plot_connection(&mut chart_context, &conn, &kp_list);
         plot_connection_displaced(&mut chart_context, &conn, &kp_list, plot_result_scale);
+    }
+
+    for kp in kp_list {
+        // plot_keypoint(&mut chart_context, &kp, plot_feature_size);
+        plot_keypoint_displaced(&mut chart_context, &kp, plot_feature_size, plot_result_scale, plot_result_decimals);
     }
 
     let plot_reaction:bool = true;
