@@ -88,8 +88,13 @@ pub fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Ca
 
     if plot_reaction {
         if kp.fx != 0.0 || kp.fy != 0.0 {
-        let label = format!("F ({:.2$}, {:.2$})", kp.fx, kp.fy, plot_result_decimals);
-        plot_label(label, x, y, plot_feature_size, chart_context);
+            let pixel_offset_y:i32 = (plot_feature_size*6.0) as i32;
+
+            // 
+            let (x_new, y_new) = offset_label_coordinates(chart_context,x,y,0,pixel_offset_y);
+
+            let label = format!("F ({:.2$}, {:.2$})", kp.fx, kp.fy, plot_result_decimals);
+            plot_label(label, x_new, y_new, plot_feature_size, chart_context);
         }
     }
 }
@@ -129,3 +134,34 @@ pub fn plot_label(text_label: String, x:f32, y:f32, plot_feature_size: f32,
     let label = Text::new(text_label, (x+plot_feature_size/50.0, y+plot_feature_size/100.0),("sans-serif", text_size).into_font().color(&BLACK));
     let _ = chart_context.draw_series(std::iter::once(label));
     }
+
+// Function that takes in x and y in canvas units, and offset coordinates x and y in pixels.
+// Returns the offset coordinates in canvas units.
+fn offset_label_coordinates(chart_context: &ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordf32>>,
+                               x:f32, y:f32, offset_pixels_x:i32, offset_pixels_y:i32) -> (f32, f32) {
+
+    let x_range = chart_context.as_coord_spec().x_spec();
+    let y_range = chart_context.as_coord_spec().y_spec();
+    let canvas_x_range = x_range.range().end - x_range.range().start;
+    let canvas_y_range = y_range.range().end - y_range.range().start;
+
+    // Finding amount of pixels in canvas.
+    let canvas_pixels = chart_context.plotting_area().get_pixel_range();
+    let (x_pixels_range, y_pixels_range) = canvas_pixels;
+    let pixels_x = (x_pixels_range.end - x_pixels_range.start) as f32;
+    let pixels_y = (y_pixels_range.end - y_pixels_range.start) as f32;
+
+    // Defining units per pixel.
+    let units_per_pixel_x = canvas_x_range / pixels_x;
+    let units_per_pixel_y = canvas_y_range / pixels_y;
+
+    // Setting unit offset based on pixels.
+    let units_offset_x = (units_per_pixel_x * offset_pixels_x as f32);
+    let units_offset_y = (units_per_pixel_y * offset_pixels_y as f32);
+
+    // Setting the new y coordinate
+    let x_offset = x as f32 + units_offset_x;
+    let y_offset = y as f32 + units_offset_y;
+
+    (x_offset, y_offset)
+}
