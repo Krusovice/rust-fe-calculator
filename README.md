@@ -6,7 +6,7 @@ This application parses model inputs from `.txt` files, making it easy to modify
 > ⚠️ This project is currently in active development. Expect changes and improvements.
 
 ## Result Example
-![Plot example](images/reaction_plot.png)
+![Plot example](images/reaction_plot2.png)
 
 ## How to Run
 - Set files in the `inputs/` directory: `keypoints.txt`, `connections`, `pointloads` `boundary-conditions` (contains a preset simple structure as example).
