@@ -7,11 +7,12 @@ pub fn plot_canvas<'a>(kp_list:&[Keypoint],
                    dimension: (u32, u32),
                    chart_title:&str) -> ChartContext<'a, BitMapBackend<'a>, Cartesian2d<RangedCoordf32, RangedCoordf32>> {
     
-    // Setting an equal x and y scale.      
-    let min_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::INFINITY, |acc, x| f32::min(acc,x));
-    let max_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::NEG_INFINITY, |acc, x| f32::max(acc,x));
-    let min_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::INFINITY, |acc, y| f32::min(acc,y));
-    let max_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::NEG_INFINITY, |acc, y| f32::max(acc,y));
+    // Setting an equal x and y scale.
+    // Finding the min and max value for the keypoints. Adding +/- 1 to the values for plot edges.
+    let min_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::INFINITY, |acc, x| f32::min(acc,x)) - 1.0 ;
+    let max_x:f32 = kp_list.iter().map(|kp| kp.x as f32).fold(f32::NEG_INFINITY, |acc, x| f32::max(acc,x)) +1.0 ;
+    let min_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::INFINITY, |acc, y| f32::min(acc,y)) -1.0 ;
+    let max_y:f32 = kp_list.iter().map(|kp| kp.y as f32).fold(f32::NEG_INFINITY, |acc, y| f32::max(acc,y)) +1.0;
 
     // Defining pixels for calculating scale
     let (width_px, height_px) = dimension;

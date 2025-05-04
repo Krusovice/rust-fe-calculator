@@ -71,19 +71,46 @@ pub fn plot_boundary_condition(chart_context:&mut ChartContext<BitMapBackend, Ca
     // 0 = vertically fixed bc
     // 1 = laterally fixed bc
     // 2 = both vertically and laterally fixed bc
-    if boundary_condition.fixture == "0" {
+    if boundary_condition.fixture == "0" && boundary_condition.spring_stiffness == -1.0 {
         let triangle = PathElement::new(vec![(x, y),(x-size/2.0, y-size),(x+size/2.0, y-size),(x, y)],ShapeStyle::from(&BLACK).filled());
         chart_context.draw_series(std::iter::once(triangle)).unwrap();
         let _ = chart_context.draw_series(LineSeries::new(vec![(x-size/2.0, y-size*1.2), (x+size/2.0, y-size*1.2)],&BLACK));
-
-    } else if boundary_condition.fixture == "1" {
+    } 
+    else if boundary_condition.fixture == "1" && boundary_condition.spring_stiffness == -1.0 {
         let triangle = PathElement::new(vec![(x, y),(x-size, y-size/2.0),(x-size, y+size/2.0),(x, y)],ShapeStyle::from(&BLACK).filled());
         chart_context.draw_series(std::iter::once(triangle)).unwrap();
         let _ = chart_context.draw_series(LineSeries::new(vec![(x-size*1.2, y-size/2.0), (x-size*1.2, y+size/2.0)],&BLACK));
-
-    } else if boundary_condition.fixture == "2" {
+    } 
+    else if boundary_condition.fixture == "2" && boundary_condition.spring_stiffness == -1.0 {
         let triangle = PathElement::new(vec![(x, y),(x-size/2.0, y-size),(x+size/2.0, y-size),(x, y)],ShapeStyle::from(&BLACK).filled());
         chart_context.draw_series(std::iter::once(triangle)).unwrap();
+    } 
+    else if boundary_condition.fixture == "0" && boundary_condition.spring_stiffness > 0.0 {
+        let spring_lateral = PathElement::new(vec![(x, y),
+                                             (x+size/8.0, y+size/2.0),(x+2.0*size/4.0, y-size/2.0),
+                                             (x+3.0*size/4.0, y+size/2.0),(x+4.0*size/4.0, y-size/2.0),
+                                             (x+4.5*size/4.0, y)],ShapeStyle::from(&BLACK).filled());
+        chart_context.draw_series(std::iter::once(spring_lateral)).unwrap();
+    }
+    else if boundary_condition.fixture == "1" && boundary_condition.spring_stiffness > 0.0 {
+        let spring_vertical = PathElement::new(vec![(x, y),
+                                             (x+size/2.0, y+size/8.0),(x-size/2.0, y+2.0*size/4.0),
+                                             (x+size/2.0, y+3.0*size/4.0),(x-size/2.0, y+4.0*size/4.0),
+                                             (x, y+4.5*size/4.0)],ShapeStyle::from(&BLACK).filled());
+        chart_context.draw_series(std::iter::once(spring_vertical)).unwrap();
+    }
+    else if boundary_condition.fixture == "2" && boundary_condition.spring_stiffness > 0.0 {
+        let spring_lateral = PathElement::new(vec![(x, y),
+                                             (x+size/8.0, y+size/2.0),(x+2.0*size/4.0, y-size/2.0),
+                                             (x+3.0*size/4.0, y+size/2.0),(x+4.0*size/4.0, y-size/2.0),
+                                             (x+4.5*size/4.0, y)],ShapeStyle::from(&BLACK).filled());
+        chart_context.draw_series(std::iter::once(spring_lateral)).unwrap();
+
+        let spring_vertical = PathElement::new(vec![(x, y),
+                                             (x+size/2.0, y+size/8.0),(x-size/2.0, y+2.0*size/4.0),
+                                             (x+size/2.0, y+3.0*size/4.0),(x-size/2.0, y+4.0*size/4.0),
+                                             (x, y+4.5*size/4.0)],ShapeStyle::from(&BLACK).filled());
+        chart_context.draw_series(std::iter::once(spring_vertical)).unwrap();
     }
 
     if plot_reaction {
