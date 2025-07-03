@@ -1,9 +1,11 @@
 # rust-fe-calculator
-A simple 2D Finite Element (FE) application written in Rust.
+A simple 2D Finite Element application with focus on automation and user friendliness, written in Rust.
+- The calculator applies bar elements and allow for fixed or spring boundary conditions.
+- It comes with a simple plotter of geometry and displacmeents and forces in each keypoint.
+- Model inputs parsed from txt files, allowing the user to automate and iterate.
+- Results for each keypoint is exported in json format, for allowing the user to generate costumized plots in other languages.
 
-This application parses model inputs from `.txt` files, making it easy to modify and iterate on simulations.
-
-> ⚠️ This project is currently in active development. Expect changes and improvements.
+> ⚠️ The project is currently in active development. Expect changes and improvements.
 
 ## Result Example
 ![Plot example](images/reaction_plot2.png)
@@ -41,9 +43,9 @@ The application follows these steps:
 ## Tech Stack
 - nalgebra – linear algebra for matrix/vector operations.
 - Custom-built FE core logic.
+- Plotters for predefined geometry and results plots.
 
 ## Future Implementation Ideas
-- Spring stiffness boundary conditions.
 - Support for beam elements (bending).
 - Export of all keypoint results in json format.
 - Various material parameters for elements (currently applying 1 hardcoded material)
