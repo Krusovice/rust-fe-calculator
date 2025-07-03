@@ -1,0 +1,15 @@
+services:
+  rust-fe-api:
+    container_name: rust_fe_api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "8200:8200"
+    networks:
+      - webpage_network
+    restart: on-failure
+
+networks:
+  webpage_network:
+    external: True
