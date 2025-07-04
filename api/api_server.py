@@ -8,11 +8,11 @@ app = FastAPI()
 
 @app.post("/run/")
 def run_fe_model(
-    keypoint: UploadFile = File(...),
-    material: UploadFile = File(...),
-    connection: UploadFile = File(...),
-    boundary_condition: UploadFile = File(...),
-    pointload: UploadFile = File(...),
+    keypoints: UploadFile = File(...),
+    materials: UploadFile = File(...),
+    connections: UploadFile = File(...),
+    bcs: UploadFile = File(...),
+    pointloads: UploadFile = File(...),
 ):
     # Ensure input/output folders exist
     os.makedirs("inputs", exist_ok=True)
@@ -20,11 +20,11 @@ def run_fe_model(
 
     # Save all files with correct filenames
     input_files = {
-        "keypoint.rs": keypoint,
-        "material.rs": material,
-        "connection.rs": connection,
-        "boundary_condition.rs": boundary_condition,
-        "pointload.rs": pointload,
+        "keypoints.txt": keypoints,
+        "materials.txt": materials,
+        "connections.txt": connections,
+        "bcs.txt": bcs,
+        "pointloads.txt": pointloads,
     }
 
     for name, file in input_files.items():
